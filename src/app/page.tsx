@@ -27,7 +27,7 @@ export default function StockChartPage() {
   const [notFound, setNotFound] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
 
-  // 🔁 symbol 변경 시 더미 데이터 갱신
+  // 🔁 Update stock data when the symbol changes
   useEffect(() => {
     try {
       const data = fetchMockStock(symbol)
@@ -38,7 +38,7 @@ export default function StockChartPage() {
       setData([])
       setNotFound(false)
     } catch (e) {
-      console.error('❌ 심볼 조회 실패:', symbol, e)
+      console.error('❌ Failed to fetch stock symbol:', symbol, e)
 
       setCompanyName('Unknown')
       setBasePrice(0)
@@ -49,7 +49,7 @@ export default function StockChartPage() {
     }
   }, [symbol])
 
-  // ⏱️ 1초마다 가격 변화 시뮬레이션
+  // ⏱️ Simulate real-time price updates every second
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date()
@@ -70,7 +70,7 @@ export default function StockChartPage() {
 
   return (
     <div className="min-h-screen p-4 bg-gray-100 text-gray-900">
-      {/* 상단 헤더 */}
+      {/* 📌 Header section */}
       <header className="flex items-start justify-between mb-4">
         <h1 className="text-xl font-bold">📈 RealStock</h1>
 
@@ -84,7 +84,7 @@ export default function StockChartPage() {
 
               const filtered = allSymbols.filter((s) => s.startsWith(val))
               setSuggestions(filtered)
-              setHighlightedIndex(null) // 방향키 선택 초기화
+              setHighlightedIndex(null) // Reset keyboard navigation index
             }}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown') {
@@ -146,14 +146,12 @@ export default function StockChartPage() {
         </div>
       </header>
 
-      {/* ❗ 오류 메시지 */}
+      {/* ❗ Error message if symbol not found */}
       {notFound && (
-        <div className="text-red-600 text-sm mb-2">
-          입력하신 심볼 &quot;{symbol}&quot;에 해당하는 종목을 찾을 수 없습니다.
-        </div>
+        <div className="text-red-600 text-sm mb-2">Symbol &quot;{symbol}&quot; not found.</div>
       )}
 
-      {/* 종목 요약 */}
+      {/* 📊 Stock summary card */}
       {!notFound && (
         <Card className="mb-4">
           <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -181,7 +179,7 @@ export default function StockChartPage() {
         </Card>
       )}
 
-      {/* 차트 */}
+      {/* 📈 Stock price chart */}
       {!notFound && (
         <div className="bg-white rounded-2xl shadow p-4">
           <ResponsiveContainer width="100%" height={300}>
