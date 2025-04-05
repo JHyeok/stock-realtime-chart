@@ -5,14 +5,7 @@ import { Input } from '@/components/ui/input'
 import { fetchMockStock, mockStockData } from '@/lib/mock-stock'
 import { Bell, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import {
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 interface PricePoint {
   time: string
@@ -34,7 +27,6 @@ export default function StockChartPage() {
   const [notFound, setNotFound] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
 
-
   // 🔁 symbol 변경 시 더미 데이터 갱신
   useEffect(() => {
     try {
@@ -46,6 +38,8 @@ export default function StockChartPage() {
       setData([])
       setNotFound(false)
     } catch (e) {
+      console.error('❌ 심볼 조회 실패:', symbol, e)
+
       setCompanyName('Unknown')
       setBasePrice(0)
       setPrice(0)
@@ -78,86 +72,84 @@ export default function StockChartPage() {
     <div className="min-h-screen p-4 bg-gray-100 text-gray-900">
       {/* 상단 헤더 */}
       <header className="flex items-start justify-between mb-4">
-  <h1 className="text-xl font-bold">📈 RealStock</h1>
+        <h1 className="text-xl font-bold">📈 RealStock</h1>
 
-  <div className="relative max-w-xs w-full">
-  <Input
-  placeholder="Search symbol (e.g. TSLA)"
-  value={inputValue}
-  onChange={(e) => {
-    const val = e.target.value.toUpperCase()
-  setInputValue(val)
+        <div className="relative max-w-xs w-full">
+          <Input
+            placeholder="Search symbol (e.g. TSLA)"
+            value={inputValue}
+            onChange={(e) => {
+              const val = e.target.value.toUpperCase()
+              setInputValue(val)
 
-  const filtered = allSymbols.filter((s) => s.startsWith(val))
-  setSuggestions(filtered)
-  setHighlightedIndex(null) // 방향키 선택 초기화
-  }}
-  onKeyDown={(e) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setHighlightedIndex((prev) => {
-        if (!suggestions.length) return null
-        const next = prev === null ? 0 : (prev + 1) % suggestions.length
-        return next
-      })
-    }
-  
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setHighlightedIndex((prev) => {
-        if (!suggestions.length) return null
-        const next =
-          prev === null
-            ? suggestions.length - 1
-            : (prev - 1 + suggestions.length) % suggestions.length
-        return next
-      })
-    }
-  
-    if (e.key === 'Enter') {
-      if (highlightedIndex !== null) {
-        const selected = suggestions[highlightedIndex]
-        setSymbol(selected)
-        setInputValue(selected)
-      } else {
-        setSymbol(inputValue)
-      }
-      setSuggestions([])
-      setHighlightedIndex(null)
-    }
-  }}
-/>
+              const filtered = allSymbols.filter((s) => s.startsWith(val))
+              setSuggestions(filtered)
+              setHighlightedIndex(null) // 방향키 선택 초기화
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                setHighlightedIndex((prev) => {
+                  if (!suggestions.length) return null
+                  const next = prev === null ? 0 : (prev + 1) % suggestions.length
+                  return next
+                })
+              }
 
-{inputValue.length > 0 && suggestions.length > 0 && inputValue !== symbol && (
-  <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow text-sm">
-    {suggestions.map((s, idx) => (
-      <li
-        key={s}
-        className={`px-4 py-2 cursor-pointer ${
-          idx === highlightedIndex ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'
-        }`}
-        onMouseEnter={() => setHighlightedIndex(idx)}
-        onClick={() => {
-          setSymbol(s)
-          setInputValue(s)
-          setSuggestions([])
-          setHighlightedIndex(null)
-        }}
-      >
-        {s}
-      </li>
-    ))}
-  </ul>
-)}
+              if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                setHighlightedIndex((prev) => {
+                  if (!suggestions.length) return null
+                  const next =
+                    prev === null
+                      ? suggestions.length - 1
+                      : (prev - 1 + suggestions.length) % suggestions.length
+                  return next
+                })
+              }
 
-  </div>
-</header>
+              if (e.key === 'Enter') {
+                if (highlightedIndex !== null) {
+                  const selected = suggestions[highlightedIndex]
+                  setSymbol(selected)
+                  setInputValue(selected)
+                } else {
+                  setSymbol(inputValue)
+                }
+                setSuggestions([])
+                setHighlightedIndex(null)
+              }
+            }}
+          />
 
+          {inputValue.length > 0 && suggestions.length > 0 && inputValue !== symbol && (
+            <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow text-sm">
+              {suggestions.map((s, idx) => (
+                <li
+                  key={s}
+                  className={`px-4 py-2 cursor-pointer ${
+                    idx === highlightedIndex ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'
+                  }`}
+                  onMouseEnter={() => setHighlightedIndex(idx)}
+                  onClick={() => {
+                    setSymbol(s)
+                    setInputValue(s)
+                    setSuggestions([])
+                    setHighlightedIndex(null)
+                  }}
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </header>
 
       {/* ❗ 오류 메시지 */}
       {notFound && (
         <div className="text-red-600 text-sm mb-2">
-          입력하신 심볼 "{symbol}"에 해당하는 종목을 찾을 수 없습니다.
+          입력하신 심볼 &quot;{symbol}&quot;에 해당하는 종목을 찾을 수 없습니다.
         </div>
       )}
 
@@ -197,13 +189,7 @@ export default function StockChartPage() {
               <XAxis dataKey="time" tick={{ fontSize: 12 }} />
               <YAxis domain={['dataMin - 1', 'dataMax + 1']} tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="price"
-                stroke="#2563eb"
-                strokeWidth={2}
-                dot={false}
-              />
+              <Line type="monotone" dataKey="price" stroke="#2563eb" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
